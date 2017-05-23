@@ -18,21 +18,17 @@
 	},
 	"permissions": [
 		"tabs",
-		"*://vi.vipr.ebaydesc.com/*",
-		"http://www.ebay.com/*",
-		"http://www.ebay.co,uk/*",
-		"http://auction.dev/*",
+		"http://www.rightmove.co.uk/*",
 		"storage"
 	],
 	"options_page": "assets/html/login.html",
 	"content_scripts": [
 		{
 			"matches": [
-				"*://www.ebay.com/*",
-				"*://www.ebay.co.uk/*"
+				"*://www.rightmove.co.uk/*"
 			],
 			"css": [
-				"assets/styles/ebay.css"
+				"assets/styles/content.css"
 			],
 			"js": [
 				"assets/scripts/jquery.js",
@@ -41,16 +37,6 @@
 			],
 			"run_at": "document_end",
 			"all_frames": true
-		},
-		{
-			"matches": [
-				"*://vi.vipr.ebaydesc.com/*"
-			],
-			"js": [
-				"assets/scripts/desc.js"
-			],
-			"run_at": "document_end",
-			"all_frames": false
 		}
 	],
 	"browser_action": {
