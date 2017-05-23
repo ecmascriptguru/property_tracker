@@ -162,7 +162,31 @@ let ContentScript = (function() {
 	};
 
 	const checkOnTheMarket = (num) => {
-		//
+		let title = (($(".details-heading h1").eq(0) || {}).text() || "").trim(),
+			price = (($(".details-heading .price .price-data").eq(0) || {}).text() || "").trim(),
+			address = (($(".details-heading .price").eq(0).next().next() || {}).text() || "").trim(),
+			agent = (($(".agent-name") || {}).text() || "").trim(),
+			agent_address = (($(".agent-address") || {}).text() || "").trim(),
+			agent_phone = (($(".agent-phone-link").eq(0) || {}).text() || "").trim(),
+			features = $("ul.property-features li") || [],
+			description = (($(".description").eq(1) || {}).text() || "").trim(),
+			tempFeatures = [];
+
+		for (let i = 0; i < features.length; i ++) {
+			tempFeatures.push(features.eq(i).text().trim());
+		}
+		features = tempFeatures.join("\n");
+
+		let info = {
+			title,
+			address,
+			price,
+			agent,
+			agent_address,
+			agent_phone,
+			features,
+			description
+		};
 	};
 
 	const checkPages = {
