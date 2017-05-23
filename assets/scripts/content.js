@@ -134,7 +134,31 @@ let ContentScript = (function() {
 	};
 
 	const checkZoopla = (num) => {
-		//
+		let title = (($("#listing-details h2[itemprop='name']") || {}).text() || "").trim(),
+			price = (($(".listing-details-price strong") || {}).text() || "").trim(),
+			address = (($("div.listing-details-address h2[itemprop='streetAddress']") || {}).text() || "").trim(),
+			agent = (($("#listings-agent strong[itemprop='name']") || {}).text() || "").trim(),
+			agent_address = (($("#listings-agent span[itemprop='address']") || {}).text() || "").trim(),
+			agent_phone = (($("#listings-agent a[itemprop='telephone']") || {}).text() || "").trim(),
+			features = $("#tab-details #images").next().next().find("ul li") || [],
+			description = (($("#tab-details div[itemprop='description']") || {}).text() || "").trim(),
+			tempFeatures = [];
+
+		for (let i = 0; i < features.length; i ++) {
+			tempFeatures.push(features.eq(i).text().trim());
+		}
+		features = tempFeatures.join("\n");
+
+		let info = {
+			title,
+			address,
+			price,
+			agent,
+			agent_address,
+			agent_phone,
+			features,
+			description
+		};
 	};
 
 	const checkOnTheMarket = (num) => {
