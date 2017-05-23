@@ -8,7 +8,7 @@ let restAPI = (function(window, jQuery) {
 		_v1ApiBaseUrl = null;
 
 	if (env == "dev") {
-		_mainHost = "http://auction.dev:8080/";
+		_mainHost = "http://localhost:8000/";
 	} else {
 		_mainHost = "http://54.175.85.52/";
 	}

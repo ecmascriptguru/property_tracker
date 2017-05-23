@@ -18,14 +18,18 @@
 	},
 	"permissions": [
 		"tabs",
-		"http://www.rightmove.co.uk/*",
+		"*://www.rightmove.co.uk/*",
+		"*://www.zoopla.co.uk/*",
+		"*://www.onthemarket.com/*",
 		"storage"
 	],
 	"options_page": "assets/html/login.html",
 	"content_scripts": [
 		{
 			"matches": [
-				"*://www.rightmove.co.uk/*"
+				"*://www.rightmove.co.uk/*",
+				"*://www.zoopla.co.uk/*",
+				"*://www.onthemarket.com/*"
 			],
 			"css": [
 				"assets/styles/content.css"
