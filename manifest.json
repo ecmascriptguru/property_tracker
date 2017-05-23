@@ -1,0 +1,67 @@
+{
+	"name": "__MSG_appName__",
+	"version": "0.0.1",
+	"manifest_version": 2,
+	"description": "__MSG_appDescription__",
+	"icons": {
+		"16": "assets/images/icon.png",
+		"38": "assets/images/icon.png",
+		"128": "assets/images/icon.png"
+	},
+	"default_locale": "en",
+	"background": {
+		"scripts": [
+			"assets/scripts/jquery.js",
+			"assets/scripts/common.js",
+			"assets/scripts/background.js"
+		]
+	},
+	"permissions": [
+		"tabs",
+		"*://vi.vipr.ebaydesc.com/*",
+		"http://www.ebay.com/*",
+		"http://www.ebay.co,uk/*",
+		"http://auction.dev/*",
+		"storage"
+	],
+	"options_page": "assets/html/login.html",
+	"content_scripts": [
+		{
+			"matches": [
+				"*://www.ebay.com/*",
+				"*://www.ebay.co.uk/*"
+			],
+			"css": [
+				"assets/styles/ebay.css"
+			],
+			"js": [
+				"assets/scripts/jquery.js",
+				"assets/scripts/common.js",
+				"assets/scripts/content.js"
+			],
+			"run_at": "document_end",
+			"all_frames": true
+		},
+		{
+			"matches": [
+				"*://vi.vipr.ebaydesc.com/*"
+			],
+			"js": [
+				"assets/scripts/desc.js"
+			],
+			"run_at": "document_end",
+			"all_frames": false
+		}
+	],
+	"browser_action": {
+		"default_icon": {
+			"19": "assets/images/icon.png",
+			"38": "assets/images/icon.png"
+		},
+		"default_title": "__MSG_appName__",
+		"default_popup": "assets/html/popup.html"
+	},
+	"web_accessible_resources": [
+		"assets/images/icon.png"
+	]
+}
