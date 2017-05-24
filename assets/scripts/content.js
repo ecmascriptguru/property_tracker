@@ -51,26 +51,10 @@ let ContentScript = (function() {
 		$("#CenterPanelInternal").before($container);
 	};
 
-	const checkHistory = function(histories) {
-		if (histories.length === 0) {
-			return false;
-		} else {
-			let lastInfo = histories[histories.length - 1];
-
-			return (
-				// lastInfo.description == _itemDescription &&
-				lastInfo.title == _itemTitle &&
-				lastInfo.price == _itemPrice &&
-				lastInfo.bidders == _bidCount &&
-				lastInfo.description == _itemDescription
-			);
-		}
-	};
-
     const saveHistories = function(histories, imgUrl, callback) {
 		if (histories.length > 0) {
 			chrome.runtime.sendMessage({
-				from: "ebay",
+				from: "cs",
 				action: "save_histories",
 				hostname: _hostname,
 				number: _itemNum,
@@ -97,7 +81,7 @@ let ContentScript = (function() {
 					renderHistoryBlock(response.histories);
 				} else {
 					chrome.runtime.sendMessage({
-						from: "ebay",
+						from: "cs",
 						action: "expired"
 					});
 				}
@@ -105,7 +89,25 @@ let ContentScript = (function() {
 		}   
 	};
 
-	const checkRightMove = (num) => {
+	const isChanged = (prev, cur) => {
+		for (let p in prev) {
+			if (prev[p] != cur[p]) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	const viewHistory = (cur, histories) => {
+		if (histories.length == 0 || isChanged(histories[histories.length - 1], cur)) {
+			//	Ajax call
+			
+		} else {
+			renderHistoryBlock(histories);
+		}
+	}
+
+	const checkRightMove = (num, histories) => {
 		let title = (($(".property-header-bedroom-and-price div.left h1") || {}).text() || "").trim(),
 			address  = (($(".property-header-bedroom-and-price div.left address") || {}).text() || "").trim(),
 			price = (($("#propertyHeaderPrice") || {}).text() || "").trim(),
@@ -131,9 +133,11 @@ let ContentScript = (function() {
 			features,
 			description
 		};
+
+		viewHistory(info, histories);
 	};
 
-	const checkZoopla = (num) => {
+	const checkZoopla = (num, histories) => {
 		let title = (($("#listing-details h2[itemprop='name']") || {}).text() || "").trim(),
 			price = (($(".listing-details-price strong") || {}).text() || "").trim(),
 			address = (($("div.listing-details-address h2[itemprop='streetAddress']") || {}).text() || "").trim(),
@@ -159,9 +163,10 @@ let ContentScript = (function() {
 			features,
 			description
 		};
+		viewHistory(info, histories);
 	};
 
-	const checkOnTheMarket = (num) => {
+	const checkOnTheMarket = (num, histories) => {
 		let title = (($(".details-heading h1").eq(0) || {}).text() || "").trim(),
 			price = (($(".details-heading .price .price-data").eq(0) || {}).text() || "").trim(),
 			address = (($(".details-heading .price").eq(0).next().next() || {}).text() || "").trim(),
@@ -187,6 +192,7 @@ let ContentScript = (function() {
 			features,
 			description
 		};
+		viewHistory(info, histories);
 	};
 
 	const checkPages = {
@@ -195,11 +201,11 @@ let ContentScript = (function() {
 		"onthemarket.com": checkOnTheMarket
 	};
 
-	const init = function(num, hostname) {
+	const init = function(num, hostname, histories) {
 		_itemNum = num;
 		_hostname = hostname;
 
-		checkPages[_hostname](_itemNum);
+		checkPages[_hostname](_itemNum, histories);
 
 		// if ($("#itemTitle").length > 0 && 
 		// 	$("#prcIsum_bidPrice").length > 0 &&
@@ -283,6 +289,13 @@ let ContentScript = (function() {
 
 	let isValid = isValidUrl();
 	if (isValid && typeof isValid == "object") {
-		ContentScript.init(isValid.num, isValid.host);
+		chrome.runtime.sendMessage({
+			from: "cs",
+			action: "history",
+			domain: isValid.host,
+			number: isValid.num
+		}, function(response) {
+			ContentScript.init(isValid.num, isValid.host, response.histories);
+		});
 	}
 })(window, $);

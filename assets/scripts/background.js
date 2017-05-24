@@ -30,7 +30,7 @@ let Background = (function() {
 
 			chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				switch(request.from) {
-					case "ebay":
+					case "cs":
 						if (request.action === "check_auth") {
 							let hostname = request.hostname,
 								itemNumber = request.number,
@@ -64,14 +64,11 @@ let Background = (function() {
 							};
 
 							localStorage._histories = JSON.stringify(savedHistories);
-						}
-						break;
+						} else if (request.action == "history") {
+							let histories = (JSON.parse(localStorage._histories || "{}")[request.domain] || "{}")[request.number] || [];
 
-					case "desc":
-						if (_tabsInfo[sender.tab.id.toString()]) {
-							chrome.tabs.sendMessage(_tabsInfo[sender.tab.id.toString()], {desc: request.desc}, function(res) {
-								delete _tabsInfo[sender.tab.id.toString()];
-								chrome.tabs.remove(sender.tab.id);
+							sendResponse({
+								histories: histories
 							});
 						}
 						break;
