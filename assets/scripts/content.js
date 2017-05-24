@@ -27,21 +27,54 @@ let ContentScript = (function() {
 	}
 
 	const renderData = ($change, $full, $chart, histories) => {
+		let $fullLogTable = $("<table/>").addClass("ppy-ext-full-log-table"),
+			$fullLogTBody = $("<tbody/>");
+
+		$fullLogTBody.appendTo($fullLogTable);
+		$full.append($fullLogTable);
+
 		for (let i = histories.length - 1; i > 1; i--) {
 			let prev = histories[i - 1],
 				changedFiels = [],
 				ignoreFieldsList = ["id", "created_at", "created_by", "updated_at", "updated_by", "agent"],
-				$changes = $("<ul/>");
+				$changes = $("<ul/>"),
+				$fullLogRecord = $("<tr/>").addClass("found_by_myself").append(
+					$("<td/>").text(histories[i].created_at)
+				),
+				$fullLogRecordChangeContentField = $("<td/>").addClass("change-content"),
+				$fullLogUl = $("<ul/>");
+			$fullLogTBody.append($fullLogRecord);
+			$fullLogUl.appendTo($fullLogRecordChangeContentField);
+			$fullLogRecordChangeContentField.appendTo($fullLogRecord);
 
 			for (let p in histories[i]) {
 				if (ignoreFieldsList.indexOf(p) > -1) {
 					continue;
 				}
-				
+
 				if (histories[i][p] != prev[p]) {
 					changedFiels.push(p);
 					$changes.append(
-						$("<li/>").text(fieldCaptions[p] + " changed from " + prev[p] + " to " + histories[i][p])
+						$("<li/>").append(
+							$("<span/>").addClass("change-text").text(fieldCaptions[p] + " changed from " + prev[p] + " to " + histories[i][p]),
+							$("<span/>").addClass("change-founder").attr({
+								title: "user00" + histories[i].created_by
+							}).append($("<img/>").addClass("change-user-icon").attr({
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							}))
+						)
+					);
+
+					$fullLogUl.append(
+						$("<li/>").append(
+							$("<span/>").text(fieldCaptions[p] + " changed: "),
+							$("<span/>").addClass("prev-value").text(prev[p]),
+							$("<span/>").addClass("cur-value").text(histories[i][p]),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[i].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						)
 					);
 				}
 			}
@@ -53,12 +86,36 @@ let ContentScript = (function() {
 			);
 		}
 
+		let lastIndex = histories.length - 1;
 		$change.append(
 			$("<div/>").addClass("row").append(
-				$("<div/>").addClass("change-date").text(histories[histories.length - 1].created_at),
+				$("<div/>").addClass("change-date").text(histories[lastIndex].created_at),
 				$("<div/>").addClass("change-info").append(
 					$("<ul/>").append(
-						$("<li/>").text("Initial Entry found.")
+						$("<li/>").append(
+							$("<span/>").text("Initial Entry found."),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[lastIndex].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						)
+					)
+				)
+			)
+		);
+
+		$fullLogTBody.append(
+			$("<tr/>").append(
+				$("<td/>").addClass("change-time").text(histories[lastIndex].created_at),
+				$("<td/>").addClass("change-content").append(
+					$("<ul/>").append(
+						$("<li/>").append(
+							$("<span/>").text("Title found : " + histories[lastIndex].title),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[lastIndex].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						)
 					)
 				)
 			)

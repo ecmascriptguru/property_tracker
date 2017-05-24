@@ -7,3 +7,6 @@
         width: 20%;}
     #ppy-trk-ext-block #changes-only .row > div.change-info {
         width: 80%;}
+        #ppy-trk-ext-block img.change-user-icon {
+            width: 23px;
+            margin-top: -4px;}

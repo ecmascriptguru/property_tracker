@@ -54,6 +54,7 @@
 		"default_popup": "assets/html/popup.html"
 	},
 	"web_accessible_resources": [
-		"assets/images/icon.png"
+		"assets/images/icon.png",
+		"assets/images/user_icon.jpg"
 	]
 }
