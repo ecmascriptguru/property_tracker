@@ -52,8 +52,9 @@ let Popup = (function() {
             }
         },
 
-        setToken = function(token) {
+        setToken = function(token, user) {
             localStorage._token = JSON.stringify(token || "");
+            localStorage._user = JSON.stringify(user || {});
         },
 
         controlButtonHandler = function(event) {
@@ -63,14 +64,14 @@ let Popup = (function() {
                 if (event.target.getAttribute('data-action') === "register") {
                     restAPI.register($("#username").val(), $("#email").val(), $("#password").val(), function(response) {
                         if (response.status) {
-                            setToken(response.token);
+                            setToken(response.token, response.user);
                             goTo(event.target.getAttribute('data-target'));
                         }
                     });
                 } else if (event.target.getAttribute('data-action') === "login") {
                     restAPI.login($("#login-email").val(), $("#login-password").val(), function(response) {
                         if (response.status) {
-                            setToken(response.token);
+                            setToken(response.token, response.user);
                             goTo(event.target.getAttribute('data-target'));
                         }
                     });

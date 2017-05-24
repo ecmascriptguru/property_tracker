@@ -1,4 +1,9 @@
-#ebay-auction-tracking-extension-container {
-    border: solid 1px red;
-    padding: 5px 10px;
-}
+#ppy-trk-ext-block li.tabbed-content-nav-item {
+    cursor: pointer;}
+
+#ppy-trk-ext-block #changes-only .row > div {
+    float: left;}
+    #ppy-trk-ext-block #changes-only .row > div.change-date {
+        width: 20%;}
+    #ppy-trk-ext-block #changes-only .row > div.change-info {
+        width: 80%;}

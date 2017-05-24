@@ -21,34 +21,98 @@ let ContentScript = (function() {
 		}
 	};
 
-	const renderHistoryBlock = function(histories) {
-		if (histories.length == 1) {
-			return false;
-		}
-		let $container = $("<div/>").attr({id: "ebay-auction-tracking-extension-container"}),
-			$title = $("<h2/>").text("Changed detected!");
+	const fieldCaptions = {
+		"price" : "Price",
+		"title" : "Title"
+	}
 
-		$container.append($title);
+	const renderData = ($change, $full, $chart, histories) => {
+		for (let i = histories.length - 1; i > 1; i--) {
+			let prev = histories[i - 1],
+				changedFiels = [],
+				ignoreFieldsList = ["id", "created_at", "created_by", "updated_at", "updated_by", "agent"],
+				$changes = $("<ul/>");
 
-		for (let i = histories.length - 2; i >= 0; i --) {
-			let $block = $("<div/>").addClass({"id": "ebay-auction-extension-change-block"});
-
-			$block.append(
-				$("<h5/>").text(histories[i].updated_at),
-				$("<h5/>").text("Title:  " + histories[i].title),
-				$("<h5/>").text("Description:  " + histories[i].description),
-				$("<h5/>").text("Bids:   " + histories[i].bidders),
-				$("<h5/>").text("Price:  " + histories[i].price)
-			);
-
-			$container.append($block);
-
-			if (i != 0) {
-				$container.append($("<br/>"));
+			for (let p in histories[i]) {
+				if (ignoreFieldsList.indexOf(p) > -1) {
+					continue;
+				}
+				
+				if (histories[i][p] != prev[p]) {
+					changedFiels.push(p);
+					$changes.append(
+						$("<li/>").text(fieldCaptions[p] + " changed from " + prev[p] + " to " + histories[i][p])
+					);
+				}
 			}
+			$change.append(
+				$("<div/>").addClass("row").append(
+					$("<div/>").addClass("change-date").text(histories[i].created_at),
+					$("<div/>").addClass("change-info").append($changes)
+				)
+			);
 		}
 
-		$("#CenterPanelInternal").before($container);
+		$change.append(
+			$("<div/>").addClass("row").append(
+				$("<div/>").addClass("change-date").text(histories[histories.length - 1].created_at),
+				$("<div/>").addClass("change-info").append(
+					$("<ul/>").append(
+						$("<li/>").text("Initial Entry found.")
+					)
+				)
+			)
+		);
+	}
+
+	const renderToMoveRight = (histories) => {
+		let $detailTabBlock = $("div#detailsTabs").parents(".row.one-col"),
+			$row = $("<div/>").addClass("row one-col"),
+			$cell = $("<div/>").addClass("cell"),
+			$module = $("<div/>").addClass("module"),
+			$dataBlock = $("<div/>").attr("id", "ppy-trk-ext-block").addClass("tabbed-content"),
+			$navigator = $("<ul/>").addClass("clearfix tabbed-content-nav print-hidden").append(
+				$("<li/>").addClass("tabbed-content-nav-item active")
+					.attr({
+						"data-target": "changes-only"
+					}).append($("<a/>").text("Changes")),
+				$("<li/>").addClass("tabbed-content-nav-item")
+					.attr({
+						"data-target": "full-history"
+					}).append($("<a/>").text("Full Log")),
+				$("<li/>").addClass("tabbed-content-nav-item")
+					.attr({
+						"data-target": "chart-view"
+					}).append($("<a/>").text("Chart View"))
+			),
+			$tabsContainer = $("<div/>").addClass("clearfix tabs"),
+			$changesTab = $("<div/>").addClass("tabbed-content-tab clearfix active").attr({id: "changes-only"}),
+			$fullLogTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "full-history"}).text("Full history view"),
+			$chartTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "chart-view"}).text("Charts view");
+
+		$dataBlock.append(
+			$navigator,
+			$tabsContainer.append($changesTab, $fullLogTab, $chartTab)
+		);
+		$row.append($cell.append($module.append($dataBlock)));
+		$row.insertBefore($detailTabBlock);
+
+		$("#ppy-trk-ext-block ul li.tabbed-content-nav-item").click((event) => {
+			$("#ppy-trk-ext-block ul li.tabbed-content-nav-item.active").removeClass("active");
+			$("#ppy-trk-ext-block div.tabbed-content-tab.active").removeClass("active");
+			$(event.target).parent().addClass("active");
+			$("#ppy-trk-ext-block #" + $(event.target).parent().attr("data-target")).addClass("active");
+		});
+
+		renderData($changesTab, $fullLogTab, $chartTab, histories);
+	}
+
+	const renderHistoryBlock = (hostname, histories) => {
+		const renderFunctions = {
+			"rightmove.co.uk": renderToMoveRight
+		};
+
+		renderFunctions[hostname](histories);
 	};
 
     const saveHistories = function(histories, imgUrl, callback) {
@@ -75,7 +139,7 @@ let ContentScript = (function() {
 			if (response.status) {
 				console.log(response.histories);
 				saveHistories(response.histories, imgUrl);
-				renderHistoryBlock(response.histories);
+				renderHistoryBlock(params.host, response.histories);
 			} else {
 				chrome.runtime.sendMessage({
 					from: "cs",
@@ -103,7 +167,7 @@ let ContentScript = (function() {
 				data: cur
 			});
 		} else {
-			renderHistoryBlock(histories);
+			renderHistoryBlock(params.host, histories);
 		}
 	}
 
@@ -218,7 +282,7 @@ let ContentScript = (function() {
 				case "background":
 					if (request.action == "feed_histories") {
 						let histories = request.data;
-						renderHistoryBlock(histories);
+						renderHistoryBlock(hostname, histories);
 					}
 					break;
 
