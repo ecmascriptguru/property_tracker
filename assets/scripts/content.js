@@ -28,12 +28,18 @@ let ContentScript = (function() {
 
 	const renderData = ($change, $full, $chart, histories) => {
 		let $fullLogTable = $("<table/>").addClass("ppy-ext-full-log-table"),
-			$fullLogTBody = $("<tbody/>");
+			chartData = [],
+			$fullLogTBody = $("<tbody/>"),
+			$chartView = $("<div/>").attr({
+				id: "ppy-ext-chart-container"
+			});
 
 		$fullLogTBody.appendTo($fullLogTable);
 		$full.append($fullLogTable);
 
-		for (let i = histories.length - 1; i > 1; i--) {
+		$chartView.appendTo($chart);
+
+		for (let i = histories.length - 1; i > 0; i--) {
 			let prev = histories[i - 1],
 				changedFiels = [],
 				ignoreFieldsList = ["id", "created_at", "created_by", "updated_at", "updated_by", "agent"],
@@ -46,6 +52,13 @@ let ContentScript = (function() {
 			$fullLogTBody.append($fullLogRecord);
 			$fullLogUl.appendTo($fullLogRecordChangeContentField);
 			$fullLogRecordChangeContentField.appendTo($fullLogRecord);
+
+			if (chartData.length == 0 || chartData[chartData.length - 1].y != histories[i].price.replace(/,/g, '').match(/(\d+).(\d+)/g)[0]) {
+				chartData.push({
+					x: new Date(histories[i].created_at),
+					y: parseInt(histories[i].price.replace(/,/g, '').match(/(\d+).(\d+)/g)[0])
+				});
+			}
 
 			for (let p in histories[i]) {
 				if (ignoreFieldsList.indexOf(p) > -1) {
@@ -86,7 +99,7 @@ let ContentScript = (function() {
 			);
 		}
 
-		let lastIndex = histories.length - 1;
+		let lastIndex = 0;
 		$change.append(
 			$("<div/>").addClass("row").append(
 				$("<div/>").addClass("change-date").text(histories[lastIndex].created_at),
@@ -120,6 +133,46 @@ let ContentScript = (function() {
 				)
 			)
 		);
+
+		chartData.push({
+			x: new Date(histories[lastIndex].created_at),
+			y: parseInt(histories[lastIndex].price.replace(/,/g, '').match(/(\d+).(\d+)/g)[0])
+		});
+
+		chartData = chartData.reverse();
+
+		if (chartData[chartData.length - 1].x.toLocaleDateString() != (new Date()).toLocaleDateString()) {
+			chartData.push({
+				x: new Date(),
+				y: parseInt(histories[chartData.length - 1].price.replace(/,/g, '').match(/(\d+).(\d+)/g)[0])
+			});
+		}
+
+		$("#ppy-ext-chart-container").CanvasJSChart({
+			title: {
+				text: "Price change history"
+			},
+			axisY: {
+				title: "Price",
+				includeZero: false
+			},
+			axisX: {
+				title: "timeline",
+        		gridThickness: 2
+			},
+			creditText: "",
+			creditHref: "",
+			height: 300,
+			width: 624,
+			zoomEnabled: true,
+			data: [
+				{
+					type: "line", //try changing to column, area
+					toolTipContent: "{x} : £{y}",
+					dataPoints: chartData
+				}
+			]
+		});
 	}
 
 	const renderToMoveRight = (histories) => {
@@ -144,8 +197,8 @@ let ContentScript = (function() {
 			),
 			$tabsContainer = $("<div/>").addClass("clearfix tabs"),
 			$changesTab = $("<div/>").addClass("tabbed-content-tab clearfix active").attr({id: "changes-only"}),
-			$fullLogTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "full-history"}).text("Full history view"),
-			$chartTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "chart-view"}).text("Charts view");
+			$fullLogTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "full-history"}),
+			$chartTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "chart-view"});
 
 		$dataBlock.append(
 			$navigator,

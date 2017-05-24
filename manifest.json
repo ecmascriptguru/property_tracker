@@ -38,6 +38,7 @@
 			],
 			"js": [
 				"assets/scripts/jquery.js",
+				"assets/scripts/jquery.canvasjs.min.js",
 				"assets/scripts/common.js",
 				"assets/scripts/content.js"
 			],
