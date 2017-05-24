@@ -21,6 +21,7 @@
 		"*://www.rightmove.co.uk/*",
 		"*://www.zoopla.co.uk/*",
 		"*://www.onthemarket.com/*",
+		"http://localhost/*",
 		"storage"
 	],
 	"options_page": "assets/html/login.html",

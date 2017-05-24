@@ -70,6 +70,15 @@ let Background = (function() {
 							sendResponse({
 								histories: histories
 							});
+						} else if (request.action == "get_remote_histories") {
+							request.data.token = JSON.parse(localStorage._token || "null");
+							restAPI.getHistory(request.data, (response) => {
+								chrome.tabs.sendMessage(sender.tab.id, {
+									from: "background",
+									action: "feed_histories",
+									data: response
+								});
+							});
 						}
 						break;
 

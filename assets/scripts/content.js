@@ -70,23 +70,19 @@ let ContentScript = (function() {
 		}
 	};
 
-	const getHistory = function(histories, imgUrl, params) {
-		if (checkHistory(histories)) {
-			renderHistoryBlock(histories);
-		} else {
-			restAPI.getHistory(params, function(response) {
-				if (response.status) {
-					console.log(response.histories);
-					saveHistories(response.histories, imgUrl);
-					renderHistoryBlock(response.histories);
-				} else {
-					chrome.runtime.sendMessage({
-						from: "cs",
-						action: "expired"
-					});
-				}
-			});
-		}   
+	const getHistory = function(params) {
+		restAPI.getHistory(params, function(response) {
+			if (response.status) {
+				console.log(response.histories);
+				saveHistories(response.histories, imgUrl);
+				renderHistoryBlock(response.histories);
+			} else {
+				chrome.runtime.sendMessage({
+					from: "cs",
+					action: "expired"
+				});
+			}
+		});
 	};
 
 	const isChanged = (prev, cur) => {
@@ -101,13 +97,17 @@ let ContentScript = (function() {
 	const viewHistory = (cur, histories) => {
 		if (histories.length == 0 || isChanged(histories[histories.length - 1], cur)) {
 			//	Ajax call
-			
+			chrome.runtime.sendMessage({
+				from: "cs",
+				action: "get_remote_histories",
+				data: cur
+			});
 		} else {
 			renderHistoryBlock(histories);
 		}
 	}
 
-	const checkRightMove = (num, histories) => {
+	const checkRightMove = (host, num, histories) => {
 		let title = (($(".property-header-bedroom-and-price div.left h1") || {}).text() || "").trim(),
 			address  = (($(".property-header-bedroom-and-price div.left address") || {}).text() || "").trim(),
 			price = (($("#propertyHeaderPrice") || {}).text() || "").trim(),
@@ -124,6 +124,8 @@ let ContentScript = (function() {
 		features = tempFeatures.join("\n");
 
 		let info = {
+			host,
+			number: num,
 			title,
 			address,
 			price,
@@ -137,7 +139,7 @@ let ContentScript = (function() {
 		viewHistory(info, histories);
 	};
 
-	const checkZoopla = (num, histories) => {
+	const checkZoopla = (host, num, histories) => {
 		let title = (($("#listing-details h2[itemprop='name']") || {}).text() || "").trim(),
 			price = (($(".listing-details-price strong") || {}).text() || "").trim(),
 			address = (($("div.listing-details-address h2[itemprop='streetAddress']") || {}).text() || "").trim(),
@@ -154,6 +156,8 @@ let ContentScript = (function() {
 		features = tempFeatures.join("\n");
 
 		let info = {
+			host,
+			number: num,
 			title,
 			address,
 			price,
@@ -166,7 +170,7 @@ let ContentScript = (function() {
 		viewHistory(info, histories);
 	};
 
-	const checkOnTheMarket = (num, histories) => {
+	const checkOnTheMarket = (host, num, histories) => {
 		let title = (($(".details-heading h1").eq(0) || {}).text() || "").trim(),
 			price = (($(".details-heading .price .price-data").eq(0) || {}).text() || "").trim(),
 			address = (($(".details-heading .price").eq(0).next().next() || {}).text() || "").trim(),
@@ -183,6 +187,8 @@ let ContentScript = (function() {
 		features = tempFeatures.join("\n");
 
 		let info = {
+			host,
+			number: num,
 			title,
 			address,
 			price,
@@ -205,7 +211,24 @@ let ContentScript = (function() {
 		_itemNum = num;
 		_hostname = hostname;
 
-		checkPages[_hostname](_itemNum, histories);
+		checkPages[_hostname](hostname, _itemNum, histories);
+
+		if (_token) {
+			chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+				switch(request.from) {
+					case "background":
+						if (request.action == "feed_historeis") {
+							let histories = request.data;
+							console.log(histories);
+						}
+						break;
+
+					default:
+						console.log("Unknown message detected.");
+						break;
+				}
+			});
+		}
 
 		// if ($("#itemTitle").length > 0 && 
 		// 	$("#prcIsum_bidPrice").length > 0 &&

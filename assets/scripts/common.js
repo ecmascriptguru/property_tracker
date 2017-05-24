@@ -55,7 +55,7 @@ let restAPI = (function(window, jQuery) {
 
 		getHistory = function(params, callback) {
 			$.ajax({
-				url: _v1ApiBaseUrl + "items",
+				url: _v1ApiBaseUrl + "properties",
 				data: JSON.stringify(params),
 				method: "post",
 				contentType: "application/json",
