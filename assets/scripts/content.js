@@ -213,68 +213,20 @@ let ContentScript = (function() {
 
 		checkPages[_hostname](hostname, _itemNum, histories);
 
-		if (_token) {
-			chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-				switch(request.from) {
-					case "background":
-						if (request.action == "feed_historeis") {
-							let histories = request.data;
-							console.log(histories);
-						}
-						break;
+		chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+			switch(request.from) {
+				case "background":
+					if (request.action == "feed_histories") {
+						let histories = request.data;
+						renderHistoryBlock(histories);
+					}
+					break;
 
-					default:
-						console.log("Unknown message detected.");
-						break;
-				}
-			});
-		}
-
-		// if ($("#itemTitle").length > 0 && 
-		// 	$("#prcIsum_bidPrice").length > 0 &&
-		// 	$("#vi-VR-bid-lnk span#qty-test").length > 0 &&
-		// 	$("#vi-itm-cond").length > 0) {
-			
-		// 	_itemTitle = $("#itemTitle").text().trim();
-		// 	_itemPrice = $("#prcIsum_bidPrice").text().trim();
-		// 	_bidCount = $("#vi-VR-bid-lnk span#qty-test").text().trim();
-		// 	_itemCond = $("#vi-itm-cond").text().trim();
-		// 	_itemImgUrl = (document.getElementById("icImg") || {}).src;
-
-		// 	let iframe = document.getElementById("desc_ifr");
-
-		// 	chrome.runtime.sendMessage({
-		// 		from: "ebay",
-		// 		action: "check_auth",
-		// 		hostname: _hostname,
-		// 		number: _itemNum,
-		// 		descUrl: iframe.src
-		// 	}, function(response) {
-		// 		if (response.token) {
-		// 			_token = response.token;
-
-		// 			if (_token) {
-		// 				chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-		// 					_itemDescription = request.desc;
-		// 					getHistory(
-		// 						response.histories,
-		// 						_itemImgUrl,
-		// 						{
-		// 							token: _token,
-		// 							ref: _itemNum,
-		// 							host: _hostname,
-		// 							title: _itemTitle,
-		// 							price: _itemPrice,
-		// 							bidders: _bidCount,
-		// 							description: _itemDescription,
-		// 							condition: _itemCond
-		// 						}
-		// 					);
-		// 				});
-		// 			}
-		// 		}
-		// 	});
-		// }	   
+				default:
+					console.log("Unknown message detected.");
+					break;
+			}
+		});   
 	};
 
 	return {

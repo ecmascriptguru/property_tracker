@@ -22,6 +22,7 @@
 		"*://www.zoopla.co.uk/*",
 		"*://www.onthemarket.com/*",
 		"http://localhost/*",
+		"*://54.175.85.52/*",
 		"storage"
 	],
 	"options_page": "assets/html/login.html",

@@ -73,11 +73,19 @@ let Background = (function() {
 						} else if (request.action == "get_remote_histories") {
 							request.data.token = JSON.parse(localStorage._token || "null");
 							restAPI.getHistory(request.data, (response) => {
-								chrome.tabs.sendMessage(sender.tab.id, {
-									from: "background",
-									action: "feed_histories",
-									data: response
-								});
+								let savedHistory = JSON.parse(localStorage._histories || "{}");
+								if (!savedHistory[request.data.host]) {
+									savedHistory[request.data.host] = {};
+								}
+								if (response.status) {
+									savedHistory[request.data.host][request.data.number] = response.histories;
+									localStorage._histories = JSON.stringify(savedHistory);
+									chrome.tabs.sendMessage(sender.tab.id, {
+										from: "background",
+										action: "feed_histories",
+										data: response.histories
+									});
+								}
 							});
 						}
 						break;
