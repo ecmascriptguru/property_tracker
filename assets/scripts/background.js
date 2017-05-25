@@ -68,7 +68,8 @@ let Background = (function() {
 							let histories = (JSON.parse(localStorage._histories || "{}")[request.domain] || "{}")[request.number] || [];
 
 							sendResponse({
-								histories: histories
+								histories: histories,
+								user: JSON.parse(localStorage._user || "{}")
 							});
 						} else if (request.action == "get_remote_histories") {
 							request.data.token = JSON.parse(localStorage._token || "null");
@@ -83,7 +84,8 @@ let Background = (function() {
 									chrome.tabs.sendMessage(sender.tab.id, {
 										from: "background",
 										action: "feed_histories",
-										data: response.histories
+										data: response.histories,
+										user: JSON.parse(localStorage._user || "{}")
 									});
 								}
 							});

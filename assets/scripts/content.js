@@ -2,6 +2,7 @@
 
 let ContentScript = (function() {
 	let _token = null,
+		_user = null,
 		_itemNum = null,
 		_itemTitle = null,
 		_bidCount = null,
@@ -26,7 +27,8 @@ let ContentScript = (function() {
 		"title" : "Title"
 	}
 
-	const renderData = ($change, $full, $chart, histories) => {
+	const renderData = ($change, $full, $chart, histories, user) => {
+		user = user || _user;
 		let $changeLogTable = $("<table/>").addClass("ppy-ext-change-log-table").append(
 				$('<colgroup>\
 					<col span="1" style="width: 15%;">\
@@ -62,11 +64,11 @@ let ContentScript = (function() {
 				changedFiels = [],
 				ignoreFieldsList = ["id", "created_at", "created_by", "updated_at", "updated_by", "agent"],
 				$changeLogUl = $("<ul/>"),
-				$changeLogRecord = $("<tr/>").addClass("found_by_myself").append(
+				$changeLogRecord = $("<tr/>").addClass((user.id == histories[i].created_by) ? "found_by_myself" : "").append(
 					$("<td/>").text(histories[i].created_at.match(/\d+\-\d+\-\d+/g)[0])
 				),
 				$changeLogRecordChangeContentField = $("<td/>").addClass("change-content"),
-				$fullLogRecord = $("<tr/>").addClass("found_by_myself").append(
+				$fullLogRecord = $("<tr/>").addClass((user.id == histories[i].created_by) ? "found_by_myself" : "").append(
 					$("<td/>").text(histories[i].created_at)
 				),
 				$fullLogRecordChangeContentField = $("<td/>").addClass("change-content"),
@@ -100,7 +102,7 @@ let ContentScript = (function() {
 						$("<li/>").append(
 							$("<span/>").addClass("change-text").html(fieldCaptions[p] + " changed: from <strong>" + prev[p] + "</strong> to <strong>" + histories[i][p] + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[i].created_by,
+								title: (user.id == histories[i].created_by) ? "Myself" : "user00" + histories[i].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						)
@@ -112,7 +114,7 @@ let ContentScript = (function() {
 							$("<span/>").addClass("prev-value").text(prev[p]),
 							$("<span/>").addClass("cur-value").text(histories[i][p]),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[i].created_by,
+								title: (user.id == histories[i].created_by) ? "Myself" : "user00" + histories[i].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						)
@@ -129,14 +131,14 @@ let ContentScript = (function() {
 
 		let lastIndex = 0;
 		$changeLogTbody.append(
-			$("<tr/>").append(
+			$("<tr/>").addClass((user.id == histories[lastIndex].created_by) ? "found_by_myself" : "").append(
 				$("<td/>").addClass("change-date").text(histories[lastIndex].created_at.match(/\d+\-\d+\-\d+/g)[0]),
 				$("<td/>").addClass("change-info").append(
 					$("<ul/>").append(
 						$("<li/>").append(
 							$("<span/>").text("Initial Entry found."),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[lastIndex].created_by,
+								title: (user.id == histories[lastIndex].created_by) ? "Myself" : "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						)
@@ -146,49 +148,49 @@ let ContentScript = (function() {
 		);
 
 		$fullLogTBody.append(
-			$("<tr/>").append(
+			$("<tr/>").addClass((user.id == histories[lastIndex].created_by) ? "found_by_myself" : "").append(
 				$("<td/>").addClass("change-time").text(histories[lastIndex].created_at),
 				$("<td/>").addClass("change-content").append(
 					$("<ul/>").append(
 						$("<li/>").append(
 							$("<span/>").html("Description found : <strong>" + ((histories[lastIndex].description.length > 100) ? (histories[lastIndex].description.substr(0, 97) + "...") : histories[lastIndex].description) + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[lastIndex].created_by,
+								title: (user.id == histories[lastIndex].created_by) ? "Myself" : "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						),
 						$("<li/>").append(
 							$("<span/>").html("Address found : <strong>" + histories[lastIndex]["address/subtitle"] + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[lastIndex].created_by,
+								title: (user.id == histories[lastIndex].created_by) ? "Myself" : "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						),
 						$("<li/>").append(
 							$("<span/>").html("Title found : <strong>" + histories[lastIndex].title + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[lastIndex].created_by,
+								title: (user.id == histories[lastIndex].created_by) ? "Myself" : "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						),
 						$("<li/>").append(
 							$("<span/>").html("Price found : <strong>" + histories[lastIndex].price + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[lastIndex].created_by,
+								title: (user.id == histories[lastIndex].created_by) ? "Myself" : "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						),
 						$("<li/>").append(
 							$("<span/>").html("Features found : <strong>" + histories[lastIndex].features + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[lastIndex].created_by,
+								title: (user.id == histories[lastIndex].created_by) ? "Myself" : "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						),
 						$("<li/>").append(
 							$("<span/>").html("Agent found : <strong>" + histories[lastIndex].agent.name + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
-								title: "user00" + histories[lastIndex].created_by,
+								title: (user.id == histories[lastIndex].created_by) ? "Myself" : "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
 							})
 						)
@@ -238,7 +240,7 @@ let ContentScript = (function() {
 		});
 	}
 
-	const renderToMoveRight = (histories) => {
+	const renderToMoveRight = (histories, user) => {
 		let $detailTabBlock = $("div#detailsTabs").parents(".row.one-col"),
 			$row = $("<div/>").addClass("row one-col"),
 			$cell = $("<div/>").addClass("cell"),
@@ -280,12 +282,56 @@ let ContentScript = (function() {
 		renderData($changesTab, $fullLogTab, $chartTab, histories);
 	}
 
-	const renderHistoryBlock = (hostname, histories) => {
+	const renderToZoopla = (histories, user) => {
+		let $detailTabBlock = $("div#detailsTabs").parents(".row.one-col"),
+			$row = $("<div/>").addClass("row one-col"),
+			$cell = $("<div/>").addClass("cell"),
+			$module = $("<div/>").addClass("module"),
+			$dataBlock = $("<div/>").attr("id", "ppy-trk-ext-block").addClass("tabbed-content"),
+			$navigator = $("<ul/>").addClass("clearfix tabbed-content-nav print-hidden").append(
+				$("<li/>").addClass("tabbed-content-nav-item active")
+					.attr({
+						"data-target": "changes-only"
+					}).append($("<a/>").text("Changes")),
+				$("<li/>").addClass("tabbed-content-nav-item")
+					.attr({
+						"data-target": "full-history"
+					}).append($("<a/>").text("Full Log")),
+				$("<li/>").addClass("tabbed-content-nav-item")
+					.attr({
+						"data-target": "chart-view"
+					}).append($("<a/>").text("Chart View"))
+			),
+			$tabsContainer = $("<div/>").addClass("clearfix tabs"),
+			$changesTab = $("<div/>").addClass("tabbed-content-tab clearfix active").attr({id: "changes-only"}),
+			$fullLogTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "full-history"}),
+			$chartTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "chart-view"});
+
+		$dataBlock.append(
+			$navigator,
+			$tabsContainer.append($changesTab, $fullLogTab, $chartTab)
+		);
+		$row.append($cell.append($module.append($dataBlock)));
+		$row.insertBefore($detailTabBlock);
+
+		$("#ppy-trk-ext-block ul li.tabbed-content-nav-item").click((event) => {
+			$("#ppy-trk-ext-block ul li.tabbed-content-nav-item.active").removeClass("active");
+			$("#ppy-trk-ext-block div.tabbed-content-tab.active").removeClass("active");
+			$(event.target).parent().addClass("active");
+			$("#ppy-trk-ext-block #" + $(event.target).parent().attr("data-target")).addClass("active");
+		});
+
+		renderData($changesTab, $fullLogTab, $chartTab, histories);
+	}
+
+	const renderHistoryBlock = (hostname, histories, user) => {
+		user = user || _user;
 		const renderFunctions = {
-			"rightmove.co.uk": renderToMoveRight
+			"rightmove.co.uk": renderToMoveRight,
+			"zoopla.co.uk": renderToZoopla
 		};
 
-		renderFunctions[hostname](histories);
+		renderFunctions[hostname](histories, user);
 	};
 
     const saveHistories = function(histories, imgUrl, callback) {
@@ -312,7 +358,7 @@ let ContentScript = (function() {
 			if (response.status) {
 				console.log(response.histories);
 				saveHistories(response.histories, imgUrl);
-				renderHistoryBlock(params.host, response.histories);
+				renderHistoryBlock(params.host, response.histories, response.user);
 			} else {
 				chrome.runtime.sendMessage({
 					from: "cs",
@@ -340,7 +386,7 @@ let ContentScript = (function() {
 				data: cur
 			});
 		} else {
-			renderHistoryBlock(params.host, histories);
+			renderHistoryBlock(params.host, histories, _user);
 		}
 	}
 
@@ -444,9 +490,10 @@ let ContentScript = (function() {
 		"onthemarket.com": checkOnTheMarket
 	};
 
-	const init = function(num, hostname, histories) {
+	const init = function(num, hostname, histories, user) {
 		_itemNum = num;
 		_hostname = hostname;
+		_user = user;
 
 		checkPages[_hostname](hostname, _itemNum, histories);
 
@@ -455,7 +502,7 @@ let ContentScript = (function() {
 				case "background":
 					if (request.action == "feed_histories") {
 						let histories = request.data;
-						renderHistoryBlock(hostname, histories);
+						renderHistoryBlock(hostname, histories, request.user);
 					}
 					break;
 
@@ -507,7 +554,7 @@ let ContentScript = (function() {
 			domain: isValid.host,
 			number: isValid.num
 		}, function(response) {
-			ContentScript.init(isValid.num, isValid.host, response.histories);
+			ContentScript.init(isValid.num, isValid.host, response.histories, response.user);
 		});
 	}
 })(window, $);

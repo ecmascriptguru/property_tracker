@@ -19,3 +19,8 @@
     span.prev-value {
         text-decoration: line-through;
         padding: 0 10px;}
+
+table tr td {
+    background: lightskyblue;}
+    table tr.found_by_myself td {
+        background: greenyellow;}
