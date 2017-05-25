@@ -17,19 +17,42 @@ let Popup = (function() {
             let data = JSON.parse(localStorage._histories || "{}"),
                 index = 1;
 
+            const getUrl = (domain, num) => {
+                let url = null;
+                switch(domain) {
+                    case "rightmove.co.uk":
+                        url = `http://www.${domain}/property-for-sale/property-${num}.html`;
+                        break;
+
+                    case "zoopla.co.uk":
+                        url = `http://www.${domain}/for-sale/details/${num}`;
+                        break;
+
+                    case "onthemarket.com":
+                        url = `https://www.${domain}/details/${num}/`;
+                        break;
+
+                    default:
+                        break;
+                }
+
+                return url;
+            }
+
             for (let domain in data) {
                 let items = data[domain];
                 for (let itemNum in items) {
-                    let imgUrl = items[itemNum].img,
-                        logs = items[itemNum].histories,
-                        item = logs[logs.length - 1];
+                    let logs = items[itemNum],
+                        item = logs[logs.length - 1],
+                        url = getUrl(domain, itemNum);
 
                     _itemsTable.row.add([
                         index,
-                        "<img src='" + imgUrl + "' class='product-img' />",
+                        item.title,
                         item.price,
-                        item.bidders,
-                        "<a class='btn btn-info' target='_blank' href='http://www." + domain + "/itm/" + itemNum + "'>Check Item</a>"
+                        item['address/subtitle'],
+                        `<span title='${item.agent.address}'>${item.agent.name}</span>`,
+                        `<a class='btn btn-info' target='_blank' href='${url}'>Check Item</a>`
                     ]).draw();
 
                     index ++;
