@@ -121,12 +121,6 @@ let ContentScript = (function() {
 					);
 				}
 			}
-			// $change.append(
-			// 	$("<div/>").append(
-			// 		$("<div/>").addClass("change-date").text(histories[i].created_at),
-			// 		$("<div/>").addClass("change-info").append($changes)
-			// 	)
-			// );
 		}
 
 		let lastIndex = 0;
@@ -412,7 +406,36 @@ let ContentScript = (function() {
 	};
 
 	const isChanged = (prev, cur) => {
-		for (let p in prev) {
+		const ignores = ["host", "number"];
+		for (let p in cur) {
+			if (ignores.indexOf(p) > -1) {
+				continue;
+			}
+
+			if (p == "agent") {
+				if (prev[p].name != cur[p]) {
+					return true;
+				} else {
+					continue;
+				}
+			}
+
+			if (p == "agent_address") {
+				if (prev.agent.address != cur[p]) {
+					return true;
+				} else {
+					continue;
+				}
+			}
+
+			if (p == "agent_phone") {
+				if (prev.agent.phone != cur[p]) {
+					return true;
+				} else {
+					continue;
+				}
+			}
+
 			if (prev[p] != cur[p]) {
 				return true;
 			}
@@ -429,7 +452,7 @@ let ContentScript = (function() {
 				data: cur
 			});
 		} else {
-			renderHistoryBlock(params.host, histories, _user);
+			renderHistoryBlock(_hostname, histories, _user);
 		}
 	}
 
@@ -453,7 +476,7 @@ let ContentScript = (function() {
 			host,
 			number: num,
 			title,
-			address,
+			"address/subtitle": address,
 			price,
 			agent,
 			agent_address,
@@ -485,7 +508,7 @@ let ContentScript = (function() {
 			host,
 			number: num,
 			title,
-			address,
+			"address/subtitle": address,
 			price,
 			agent,
 			agent_address,
@@ -516,7 +539,7 @@ let ContentScript = (function() {
 			host,
 			number: num,
 			title,
-			address,
+			"address/subtitle": address,
 			price,
 			agent,
 			agent_address,
