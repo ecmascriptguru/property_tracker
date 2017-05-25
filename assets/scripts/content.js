@@ -324,11 +324,54 @@ let ContentScript = (function() {
 		renderData($changesTab, $fullLogTab, $chartTab, histories);
 	}
 
+	const renderOntheMarket = (histories, user) => {
+		let $startPointBlock = $("div#property-description"),
+			$row = $("<div/>").addClass("row one-col"),
+			$cell = $("<div/>").addClass("cell"),
+			$module = $("<div/>").addClass("module"),
+			$dataBlock = $("<div/>").attr("id", "ppy-trk-ext-block").addClass("tabbed-content"),
+			$navigator = $("<ul/>").addClass("clearfix tabbed-content-nav print-hidden").append(
+				$("<li/>").addClass("tabbed-content-nav-item active")
+					.attr({
+						"data-target": "changes-only"
+					}).append($("<a/>").text("Changes")),
+				$("<li/>").addClass("tabbed-content-nav-item")
+					.attr({
+						"data-target": "full-history"
+					}).append($("<a/>").text("Full Log")),
+				$("<li/>").addClass("tabbed-content-nav-item")
+					.attr({
+						"data-target": "chart-view"
+					}).append($("<a/>").text("Chart View"))
+			),
+			$tabsContainer = $("<div/>").addClass("clearfix tabs"),
+			$changesTab = $("<div/>").addClass("tabbed-content-tab clearfix active").attr({id: "changes-only"}),
+			$fullLogTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "full-history"}),
+			$chartTab = $("<div/>").addClass("tabbed-content-tab clearfix").attr({id: "chart-view"});
+
+		$dataBlock.append(
+			$navigator,
+			$tabsContainer.append($changesTab, $fullLogTab, $chartTab)
+		);
+		$row.append($cell.append($module.append($dataBlock)));
+		$row.insertBefore($startPointBlock);
+
+		$("#ppy-trk-ext-block ul li.tabbed-content-nav-item").click((event) => {
+			$("#ppy-trk-ext-block ul li.tabbed-content-nav-item.active").removeClass("active");
+			$("#ppy-trk-ext-block div.tabbed-content-tab.active").removeClass("active");
+			$(event.target).parent().addClass("active");
+			$("#ppy-trk-ext-block #" + $(event.target).parent().attr("data-target")).addClass("active");
+		});
+
+		renderData($changesTab, $fullLogTab, $chartTab, histories);
+	}
+
 	const renderHistoryBlock = (hostname, histories, user) => {
 		user = user || _user;
 		const renderFunctions = {
 			"rightmove.co.uk": renderToMoveRight,
-			"zoopla.co.uk": renderToZoopla
+			"zoopla.co.uk": renderToZoopla,
+			"onthemarket.com": renderOntheMarket
 		};
 
 		renderFunctions[hostname](histories, user);
