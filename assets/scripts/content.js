@@ -27,28 +27,57 @@ let ContentScript = (function() {
 	}
 
 	const renderData = ($change, $full, $chart, histories) => {
-		let $fullLogTable = $("<table/>").addClass("ppy-ext-full-log-table"),
+		let $changeLogTable = $("<table/>").addClass("ppy-ext-change-log-table").append(
+				$('<colgroup>\
+					<col span="1" style="width: 15%;">\
+					<col span="1" style="width: 85%;">\
+				</colgroup>')
+			),
+			$changeLogTbody = $("<tbody/>"),
+			$fullLogTable = $("<table/>").addClass("ppy-ext-full-log-table").append(
+				$('<colgroup>\
+					<col span="1" style="width: 25%;">\
+					<col span="1" style="width: 75%;">\
+				</colgroup>')
+			),
 			chartData = [],
 			$fullLogTBody = $("<tbody/>"),
 			$chartView = $("<div/>").attr({
 				id: "ppy-ext-chart-container"
 			});
 
+		//	For change log
+		$changeLogTable.append($changeLogTbody);
+		$change.append($changeLogTable);
+
+		//	For full log
 		$fullLogTBody.appendTo($fullLogTable);
 		$full.append($fullLogTable);
 
+		//	For chart view
 		$chartView.appendTo($chart);
 
 		for (let i = histories.length - 1; i > 0; i--) {
 			let prev = histories[i - 1],
 				changedFiels = [],
 				ignoreFieldsList = ["id", "created_at", "created_by", "updated_at", "updated_by", "agent"],
-				$changes = $("<ul/>"),
+				$changeLogUl = $("<ul/>"),
+				$changeLogRecord = $("<tr/>").addClass("found_by_myself").append(
+					$("<td/>").text(histories[i].created_at.match(/\d+\-\d+\-\d+/g)[0])
+				),
+				$changeLogRecordChangeContentField = $("<td/>").addClass("change-content"),
 				$fullLogRecord = $("<tr/>").addClass("found_by_myself").append(
 					$("<td/>").text(histories[i].created_at)
 				),
 				$fullLogRecordChangeContentField = $("<td/>").addClass("change-content"),
 				$fullLogUl = $("<ul/>");
+
+			//	For change log
+			$changeLogTbody.append($changeLogRecord);
+			$changeLogRecord.append($changeLogRecordChangeContentField);
+			$changeLogRecordChangeContentField.append($changeLogUl);
+
+			//	For full log
 			$fullLogTBody.append($fullLogRecord);
 			$fullLogUl.appendTo($fullLogRecordChangeContentField);
 			$fullLogRecordChangeContentField.appendTo($fullLogRecord);
@@ -67,14 +96,13 @@ let ContentScript = (function() {
 
 				if (histories[i][p] != prev[p]) {
 					changedFiels.push(p);
-					$changes.append(
+					$changeLogUl.append(
 						$("<li/>").append(
-							$("<span/>").addClass("change-text").text(fieldCaptions[p] + " changed from " + prev[p] + " to " + histories[i][p]),
-							$("<span/>").addClass("change-founder").attr({
-								title: "user00" + histories[i].created_by
-							}).append($("<img/>").addClass("change-user-icon").attr({
+							$("<span/>").addClass("change-text").html(fieldCaptions[p] + " changed: from <strong>" + prev[p] + "</strong> to <strong>" + histories[i][p] + "</strong>"),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[i].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
-							}))
+							})
 						)
 					);
 
@@ -91,19 +119,19 @@ let ContentScript = (function() {
 					);
 				}
 			}
-			$change.append(
-				$("<div/>").addClass("row").append(
-					$("<div/>").addClass("change-date").text(histories[i].created_at),
-					$("<div/>").addClass("change-info").append($changes)
-				)
-			);
+			// $change.append(
+			// 	$("<div/>").append(
+			// 		$("<div/>").addClass("change-date").text(histories[i].created_at),
+			// 		$("<div/>").addClass("change-info").append($changes)
+			// 	)
+			// );
 		}
 
 		let lastIndex = 0;
-		$change.append(
-			$("<div/>").addClass("row").append(
-				$("<div/>").addClass("change-date").text(histories[lastIndex].created_at),
-				$("<div/>").addClass("change-info").append(
+		$changeLogTbody.append(
+			$("<tr/>").append(
+				$("<td/>").addClass("change-date").text(histories[lastIndex].created_at.match(/\d+\-\d+\-\d+/g)[0]),
+				$("<td/>").addClass("change-info").append(
 					$("<ul/>").append(
 						$("<li/>").append(
 							$("<span/>").text("Initial Entry found."),
@@ -123,7 +151,42 @@ let ContentScript = (function() {
 				$("<td/>").addClass("change-content").append(
 					$("<ul/>").append(
 						$("<li/>").append(
-							$("<span/>").text("Title found : " + histories[lastIndex].title),
+							$("<span/>").html("Description found : <strong>" + ((histories[lastIndex].description.length > 100) ? (histories[lastIndex].description.substr(0, 97) + "...") : histories[lastIndex].description) + "</strong>"),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[lastIndex].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						),
+						$("<li/>").append(
+							$("<span/>").html("Address found : <strong>" + histories[lastIndex]["address/subtitle"] + "</strong>"),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[lastIndex].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						),
+						$("<li/>").append(
+							$("<span/>").html("Title found : <strong>" + histories[lastIndex].title + "</strong>"),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[lastIndex].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						),
+						$("<li/>").append(
+							$("<span/>").html("Price found : <strong>" + histories[lastIndex].price + "</strong>"),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[lastIndex].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						),
+						$("<li/>").append(
+							$("<span/>").html("Features found : <strong>" + histories[lastIndex].features + "</strong>"),
+							$("<img/>").addClass("change-user-icon").attr({
+								title: "user00" + histories[lastIndex].created_by,
+								src: chrome.extension.getURL("assets/images/user_icon.jpg")
+							})
+						),
+						$("<li/>").append(
+							$("<span/>").html("Agent found : <strong>" + histories[lastIndex].agent.name + "</strong>"),
 							$("<img/>").addClass("change-user-icon").attr({
 								title: "user00" + histories[lastIndex].created_by,
 								src: chrome.extension.getURL("assets/images/user_icon.jpg")
