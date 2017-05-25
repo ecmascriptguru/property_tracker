@@ -283,7 +283,7 @@ let ContentScript = (function() {
 	}
 
 	const renderToZoopla = (histories, user) => {
-		let $detailTabBlock = $("div#detailsTabs").parents(".row.one-col"),
+		let $startPointBlock = ($("div#interested-1").length > 0) ? $("#interested-1") : $("div#images"),
 			$row = $("<div/>").addClass("row one-col"),
 			$cell = $("<div/>").addClass("cell"),
 			$module = $("<div/>").addClass("module"),
@@ -312,7 +312,7 @@ let ContentScript = (function() {
 			$tabsContainer.append($changesTab, $fullLogTab, $chartTab)
 		);
 		$row.append($cell.append($module.append($dataBlock)));
-		$row.insertBefore($detailTabBlock);
+		$row.insertAfter($startPointBlock);
 
 		$("#ppy-trk-ext-block ul li.tabbed-content-nav-item").click((event) => {
 			$("#ppy-trk-ext-block ul li.tabbed-content-nav-item.active").removeClass("active");
