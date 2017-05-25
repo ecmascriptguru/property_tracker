@@ -24,7 +24,13 @@ let ContentScript = (function() {
 
 	const fieldCaptions = {
 		"price" : "Price",
-		"title" : "Title"
+		"title" : "Title",
+		"address/subtitle": "Address",
+		"features": "Features",
+		"agent": "Agent",
+		"agent_address": "Agent Address",
+		"agent_phone": "Agent Phone",
+		"description": "Description"
 	}
 
 	const renderData = ($change, $full, $chart, histories, user) => {
@@ -368,7 +374,9 @@ let ContentScript = (function() {
 			"onthemarket.com": renderOntheMarket
 		};
 
-		renderFunctions[hostname](histories, user);
+		if (histories.length > 1) {
+			renderFunctions[hostname](histories, user);
+		}
 	};
 
     const saveHistories = function(histories, imgUrl, callback) {

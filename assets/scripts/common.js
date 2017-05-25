@@ -1,7 +1,7 @@
 'use strict';
 
-let env = "dev";
-// let env = "product";
+// let env = "dev";
+let env = "product";
 
 let restAPI = (function(window, jQuery) {
 	let _mainHost = null,
