@@ -1,4 +1,4 @@
-# eBay auction tracking extension #
+# Property tracking extension #
 
 This README would normally document whatever steps are necessary to get this extension up and running.
 
@@ -10,7 +10,7 @@ This README would normally document whatever steps are necessary to get this ext
 
 ### How do I get set up? ###
 
-* Clone this repository by using `git clone git@bitbucket.org:chrisyorkston/auction-listing-tracker.git`.
+* Clone this repository by using `git clone git@github.com:ecmascriptguru/property_tracker.git`.
 * Go to chrome browser settings page by visiting `chrome://extensions/`.
 * Check in `Developer mode` checkbox at the top right.
 * Then you will see a button named `Load unpacked extension...`, which will let you select the correct path to cloned directory.
