@@ -65,10 +65,10 @@ let Background = (function() {
 
 							localStorage._histories = JSON.stringify(savedHistories);
 						} else if (request.action == "history") {
-							let histories = (JSON.parse(localStorage._histories || "{}")[request.domain] || "{}")[request.number] || [];
+							let item = (JSON.parse(localStorage._histories || "{}")[request.domain] || "{}")[request.number] || [];
 
 							sendResponse({
-								histories: histories,
+								histories: item.histories || [],
 								user: JSON.parse(localStorage._user || "{}")
 							});
 						} else if (request.action == "get_remote_histories") {
