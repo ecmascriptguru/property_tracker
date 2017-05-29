@@ -473,6 +473,7 @@ let ContentScript = (function() {
 			agent_phone = (($("#requestdetails strong").eq(0)).text() || "").trim(),
 			features = $("div.key-features li"),
 			description = ((features.parents(".key-features").next()).text() || "").trim(),
+			img = ($(".gallery-main-img-wrap img") || [{}])[0].src,
 			tempFeatures = [];
 
 		for (let i = 0; i < features.length; i ++) {
@@ -484,6 +485,7 @@ let ContentScript = (function() {
 			host,
 			number: num,
 			title,
+			img,
 			"address/subtitle": address,
 			price,
 			agent,
@@ -575,7 +577,7 @@ let ContentScript = (function() {
 			switch(request.from) {
 				case "background":
 					if (request.action == "feed_histories") {
-						let histories = request.data;
+						let histories = request.histories;
 						renderHistoryBlock(hostname, histories, request.user);
 					}
 					break;

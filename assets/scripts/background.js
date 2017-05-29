@@ -79,12 +79,17 @@ let Background = (function() {
 									savedHistory[request.data.host] = {};
 								}
 								if (response.status) {
-									savedHistory[request.data.host][request.data.number] = response.histories;
+									savedHistory[request.data.host][request.data.number] = {
+										img: request.data.img,
+										ref: response.ref,
+										histories: response.histories
+									};
 									localStorage._histories = JSON.stringify(savedHistory);
 									chrome.tabs.sendMessage(sender.tab.id, {
 										from: "background",
 										action: "feed_histories",
-										data: response.histories,
+										img: request.data.img,
+										histories: response.histories,
 										user: JSON.parse(localStorage._user || "{}")
 									});
 								} else if (response.message == "Your token was expired.") {

@@ -42,17 +42,20 @@ let Popup = (function() {
             for (let domain in data) {
                 let items = data[domain];
                 for (let itemNum in items) {
-                    let logs = items[itemNum],
+                    let logs = items[itemNum].histories,
+                        img = items[itemNum].img,
+                        ref = items[itemNum].ref,
                         item = logs[logs.length - 1],
                         url = getUrl(domain, itemNum);
 
                     _itemsTable.row.add([
-                        index,
+                        ref,
+                        `<img class="property-img" src="${img}" />`,
                         item.title,
                         item.price,
                         item['address/subtitle'],
                         `<span title='${item.agent.address}'>${item.agent.name}</span>`,
-                        `<a class='btn btn-info' target='_blank' href='${url}'>Check Item</a>`
+                        `<a class='btn btn-info' target='_blank' href='${url}'>View property</a>`
                     ]).draw();
 
                     index ++;
