@@ -469,7 +469,7 @@ let ContentScript = (function() {
 	const checkRightMove = (host, num, histories) => {
 		let title = (($(".property-header-bedroom-and-price div.left h1") || {}).text() || "").trim(),
 			address  = (($(".property-header-bedroom-and-price div.left address") || {}).text() || "").trim(),
-			price = (($("#propertyHeaderPrice") || {}).text() || "").trim(),
+			price = (($("#propertyHeaderPrice strong") || {}).text() || "").trim(),
 			agent = (($("#aboutBranchLink strong") || {}).text() || "").trim(),
 			agent_address = (($("#aboutBranchLink strong") || {}.siblings() || {}).text() || "").trim(),
 			agent_phone = (($("#requestdetails strong").eq(0)).text() || "").trim(),
