@@ -60,7 +60,15 @@ let Popup = (function() {
             }
         },
 
-        goTo = function(step) {
+        getToken = () => {
+            return JSON.parse(localStorage._token);
+        },
+
+        getUser = () => {
+            return JSON.parse(localStorage._user);
+        },
+
+        goTo = (step) => {
             _steps.forEach(function(val) {
                 if (step == val) {
                     $("#" + val).show();
@@ -116,6 +124,10 @@ let Popup = (function() {
             _itemsTable = $("table#tbl-items").DataTable({
                 "autoWidth": false
             });
+
+            if (!getToken() || !(getUser() || {}).id) {
+                _curStep = "login";
+            }
             goTo(_curStep);
         };
 

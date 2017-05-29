@@ -87,6 +87,9 @@ let Background = (function() {
 										data: response.histories,
 										user: JSON.parse(localStorage._user || "{}")
 									});
+								} else if (response.message == "Your token was expired.") {
+									localStorage._token = JSON.stringify(null);
+									localStorage._user = JSON.stringify({});
 								}
 							});
 						}
