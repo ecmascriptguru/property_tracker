@@ -1,5 +1,7 @@
 'use strict';
 
+let globalTimer = null;
+
 let ContentScript = (function() {
 	let _token = null,
 		_user = null,
@@ -507,6 +509,7 @@ let ContentScript = (function() {
 			agent_phone = (($("#listings-agent a[itemprop='telephone']") || {}).text() || "").trim(),
 			features = $("#tab-details #images").next().next().find("ul li") || [],
 			description = (($("#tab-details div[itemprop='description']") || {}).text() || "").trim(),
+			img = ($("#images-thumbs a img") || [{}])[0].src,
 			tempFeatures = [];
 
 		for (let i = 0; i < features.length; i ++) {
@@ -518,6 +521,7 @@ let ContentScript = (function() {
 			host,
 			number: num,
 			title,
+			img,
 			"address/subtitle": address,
 			price,
 			agent,
@@ -538,7 +542,18 @@ let ContentScript = (function() {
 			agent_phone = (($(".agent-phone-link").eq(0) || {}).text() || "").trim(),
 			features = $("ul.property-features li") || [],
 			description = (($(".description").eq(1) || {}).text() || "").trim(),
+			img = ($(".thumb-carousel .property-image img") || [{}])[0],
 			tempFeatures = [];
+
+		if (!img) {
+			globalTimer = window.setTimeout(() => {
+				checkOnTheMarket(host, num, histories);
+			}, 500);
+			return false;
+		}
+
+		clearTimeout(globalTimer);
+		img = img.src;
 
 		for (let i = 0; i < features.length; i ++) {
 			tempFeatures.push(features.eq(i).text().trim());
@@ -549,6 +564,7 @@ let ContentScript = (function() {
 			host,
 			number: num,
 			title,
+			img,
 			"address/subtitle": address,
 			price,
 			agent,
