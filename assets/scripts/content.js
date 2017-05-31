@@ -12,6 +12,10 @@ let ContentScript = (function() {
 		_itemCond = null,
         _itemDescription = null,
 		_hostname = null,
+		_currencies = {
+			"£": "GBP",
+			"$": "USD"
+		},
 		_itemImgUrl = null;
 
 	const getProductInfo = function() {
@@ -26,6 +30,8 @@ let ContentScript = (function() {
 
 	const fieldCaptions = {
 		"price" : "Price",
+		"price_data": "Price data",
+		"currency": "Price Currency",
 		"title" : "Title",
 		"address/subtitle": "Address",
 		"features": "Features",
@@ -416,7 +422,7 @@ let ContentScript = (function() {
 	};
 
 	const isChanged = (prev, cur) => {
-		const ignores = ["host", "number"];
+		const ignores = ["host", "number", "img"];
 		for (let p in cur) {
 			if (ignores.indexOf(p) > -1) {
 				continue;
@@ -470,6 +476,8 @@ let ContentScript = (function() {
 		let title = (($(".property-header-bedroom-and-price div.left h1") || {}).text() || "").trim(),
 			address  = (($(".property-header-bedroom-and-price div.left address") || {}).text() || "").trim(),
 			price = (($("#propertyHeaderPrice strong") || {}).text() || "").trim(),
+			priceData = (($("#propertyHeaderPrice small") || {}).text() || "").trim(),
+			currency = null,
 			agent = (($("#aboutBranchLink strong") || {}).text() || "").trim(),
 			agent_address = (($("#aboutBranchLink strong") || {}.siblings() || {}).text() || "").trim(),
 			agent_phone = (($("#requestdetails strong").eq(0)).text() || "").trim(),
@@ -483,6 +491,14 @@ let ContentScript = (function() {
 		}
 		features = tempFeatures.join("\n");
 
+		for (let sym in _currencies) {
+			if (price.indexOf(sym) > -1) {
+				currency = _currencies[sym];
+				break;
+			}
+		}
+		price = (price.match(/((\d+,)+)\d+/g).length > 0) ? price.match(/((\d+,)+)\d+/g)[0] : price;
+
 		let info = {
 			host,
 			number: num,
@@ -490,6 +506,8 @@ let ContentScript = (function() {
 			img,
 			"address/subtitle": address,
 			price,
+			price_data: priceData,
+			currency,
 			agent,
 			agent_address,
 			agent_phone,
@@ -503,6 +521,8 @@ let ContentScript = (function() {
 	const checkZoopla = (host, num, histories) => {
 		let title = (($("#listing-details h2[itemprop='name']") || {}).text() || "").trim(),
 			price = (($(".listing-details-price strong") || {}).text() || "").trim(),
+			priceData = null,
+			currency = null,
 			address = (($("div.listing-details-address h2[itemprop='streetAddress']") || {}).text() || "").trim(),
 			agent = (($("#listings-agent strong[itemprop='name']") || {}).text() || "").trim(),
 			agent_address = (($("#listings-agent span[itemprop='address']") || {}).text() || "").trim(),
@@ -517,6 +537,14 @@ let ContentScript = (function() {
 		}
 		features = tempFeatures.join("\n");
 
+		for (let sym in _currencies) {
+			if (price.indexOf(sym) > -1) {
+				currency = _currencies[sym];
+				break;
+			}
+		}
+		price = (price.match(/((\d+,)+)\d+/g).length > 0) ? price.match(/((\d+,)+)\d+/g)[0] : price;
+
 		let info = {
 			host,
 			number: num,
@@ -524,6 +552,8 @@ let ContentScript = (function() {
 			img,
 			"address/subtitle": address,
 			price,
+			price_data: priceData,
+			currency,
 			agent,
 			agent_address,
 			agent_phone,
@@ -536,6 +566,8 @@ let ContentScript = (function() {
 	const checkOnTheMarket = (host, num, histories) => {
 		let title = (($(".details-heading h1").eq(0) || {}).text() || "").trim(),
 			price = (($(".details-heading .price .price-data").eq(0) || {}).text() || "").trim(),
+			priceData = null,
+			currency = null,
 			address = (($(".details-heading .price").eq(0).next().next() || {}).text() || "").trim(),
 			agent = (($(".agent-name") || {}).text() || "").trim(),
 			agent_address = (($(".agent-address") || {}).text() || "").trim(),
@@ -560,6 +592,14 @@ let ContentScript = (function() {
 		}
 		features = tempFeatures.join("\n");
 
+		for (let sym in _currencies) {
+			if (price.indexOf(sym) > -1) {
+				currency = _currencies[sym];
+				break;
+			}
+		}
+		price = (price.match(/((\d+,)+)\d+/g).length > 0) ? price.match(/((\d+,)+)\d+/g)[0] : price;
+
 		let info = {
 			host,
 			number: num,
@@ -567,6 +607,8 @@ let ContentScript = (function() {
 			img,
 			"address/subtitle": address,
 			price,
+			price_data: priceData,
+			currency,
 			agent,
 			agent_address,
 			agent_phone,
